@@ -49,7 +49,7 @@ limitations under the License.
 
 </style>
 
-<div>All the divs should rotate 360 degrees about an axis below them, and also for the first quadrant, rotate quickly about their centers.</div>
+<div>All the divs should rotate 360 degrees about their base, and also for the first quadrant, spin quickly about their centers.</div>
 <div id="a" class="anim"></div>
 <div id="a" style="top: 50px; left: 0px;" class="expected"></div>
 <div id="b" class="anim"></div>
@@ -82,8 +82,8 @@ var timing = {duration: 2 * 1000, fill: 'forwards'};
 var faster_timing = {duration: 0.5 * 1000, fill: 'forwards'};
 
 dt.play(new Animation(divs[0], [
-  {transform: "translate(0px,200px) rotate(0deg) translate(0px,-200px)"},
-  {transform: "translate(0px,200px) rotate(360deg) translate(0px,-200px)"},
+  {transform: "translate(0px,50px) rotate(0deg) translate(0px,-50px)"},
+  {transform: "translate(0px,50px) rotate(360deg) translate(0px,-50px)"},
 ], timing));
 dt.play(new Animation(divs[0], new KeyframeEffect([
   {transform: "rotate(0deg)"},
@@ -95,8 +95,8 @@ dt.play(new Animation(divs[1], [
   {transform: "matrix(1,0,0,1,0,0)"},
 ], timing));
 dt.play(new Animation(divs[1], new KeyframeEffect([
-  {transform: "translate(0px,200px) rotate(0deg) translate(0px,-200px)"},
-  {transform: "translate(0px,200px) rotate(360deg) translate(0px,-200px)"},
+  {transform: "translate(0px,50px) rotate(0deg) translate(0px,-50px)"},
+  {transform: "translate(0px,50px) rotate(360deg) translate(0px,-50px)"},
 ], "add"), timing));
 dt.play(new Animation(divs[1], new KeyframeEffect([
   {transform: "rotate(0deg)"},
@@ -104,8 +104,8 @@ dt.play(new Animation(divs[1], new KeyframeEffect([
 ], "add"), faster_timing));
 
 dt.play(new Animation(divs[2], [
-  {transform: "translate(0px,200px) rotate(0deg) translate(0px,-200px)"},
-  {transform: "translate(0px,200px) rotate(360deg) translate(0px,-200px)"},
+  {transform: "translate(0px,50px) rotate(0deg) translate(0px,-50px)"},
+  {transform: "translate(0px,50px) rotate(360deg) translate(0px,-50px)"},
 ], timing));
 dt.play(new Animation(divs[2], new KeyframeEffect([
   {transform: "translate(0px,0px) rotate(0deg) translate(0px,-0px)"},
@@ -117,8 +117,8 @@ dt.play(new Animation(divs[3], [
   {transform: "matrix(1,0,0,1,0,0)"},
 ], timing));
 dt.play(new Animation(divs[3], new KeyframeEffect([
-  {transform: "translate(0px,200px) rotate(0deg) translate(0px,-200px)"},
-  {transform: "translate(0px,200px) rotate(360deg) translate(0px,-200px)"},
+  {transform: "translate(0px,50px) rotate(0deg) translate(0px,-50px)"},
+  {transform: "translate(0px,50px) rotate(360deg) translate(0px,-50px)"},
 ], "add"), timing));
 dt.play(new Animation(divs[3], new KeyframeEffect([
   {transform: "translate(0px,0px) rotate(0deg) translate(0px,-0px)"},
