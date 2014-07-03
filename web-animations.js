@@ -4411,10 +4411,24 @@ var transformType = {
     var out = [];
     for (var i = 0; i < Math.min(from.length, to.length); i++) {
       if (isMatrix(from[i]) && isMatrix(to[i])) {
-        var fromDecomposed = decomposeMatrix(convertToMatrix([from[i]]));
-        var toDecomposed = decomposeMatrix(convertToMatrix([to[i]]));
+        if (!from.decompositions) {
+          from.decompositions = [];       // A sparse array of decomposed matrices
+          from.decompositionPairs = [];   // Corresponding to[i] partners
+        }
+        if (!to.decompositions) {
+          to.decompositions = [];
+          to.decompositionPairs = [];
+        }
+        if (from.decompositionPairs[i] !== to[i]) {
+          from.decompositionPairs[i] = to[i];
+          from.decompositions[i] = decomposeMatrix(convertToMatrix([from[i]]));
+        }
+        if (to.decompositionPairs[i] !== from[i]) {
+          to.decompositionPairs[i] = from[i];
+          to.decompositions[i] = decomposeMatrix(convertToMatrix([to[i]]));
+        }
         out.push(interpolateDecomposedTransformsWithMatrices(
-            fromDecomposed, toDecomposed, f));
+            from.decompositions[i], to.decompositions[i], f));
       } else if (from[i].t !== to[i].t) {
         break;
       } else {
