@@ -5342,14 +5342,48 @@ var clearValue = function(target, property) {
   }
 };
 
+var cachedCSSProperties = {};
+
+var clearCSSCache = function(){
+  cachedCSSProperties = {};
+};
+
 var getValue = function(target, property) {
+  if (useCSSCache && target.id) {
+    if (cachedCSSProperties[target.id] && cachedCSSProperties[target.id][property] !== undefined) {
+      return cachedCSSProperties[target.id][property];
+    }
+  }
+
   ensureTargetInitialised(property, target);
   property = prefixProperty(property);
+  var value;
   if (propertyIsSVGAttrib(property, target)) {
-    return target.actuals[property];
+    value = target.actuals[property];
   } else {
-    return getComputedStyle(target)[property];
+    value = getComputedStyle(target)[property];
   }
+
+  if (useCSSCache && target.id) {
+    if (!cachedCSSProperties[target.id]) {
+      cachedCSSProperties[target.id] = {};
+    }
+    cachedCSSProperties[target.id][property] = value;
+  }
+
+  return value;
+};
+
+var useCSSCache = false;
+
+var _WebAnimationsPolyfillTools = {
+  enableCSSCache: function(){
+    useCSSCache = true;
+  },
+  disableCSSCache: function(){
+    useCSSCache = false;
+  },
+  clearCSSCache: clearCSSCache
 };
 
 var rafScheduled = false;
@@ -5629,6 +5663,8 @@ window._WebAnimationsTestingUtilities = {
   _prefixProperty: prefixProperty,
   _propertyIsSVGAttrib: propertyIsSVGAttrib
 };
+
+window._WebAnimationsPolyfillTools = _WebAnimationsPolyfillTools;
 
 defineDeprecatedProperty(window, 'Timeline', function() {
   deprecated('Timeline', '2014-04-08',
