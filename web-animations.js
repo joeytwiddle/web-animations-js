@@ -451,7 +451,8 @@ AnimationPlayer.prototype = {
     try {
       this._currentTime = currentTime;
     } finally {
-      exitModifyCurrentAnimationState(repeatLastTick);
+      var callback = skipCallbackWhenSettingCurrentTime ? undefined : repeatLastTick;
+      exitModifyCurrentAnimationState(callback);
     }
   },
   get currentTime() {
@@ -5375,6 +5376,7 @@ var getValue = function(target, property) {
 };
 
 var useCSSCache = false;
+var skipCallbackWhenSettingCurrentTime = false;
 
 var _WebAnimationsPolyfillTools = {
   enableCSSCache: function(){
@@ -5382,6 +5384,12 @@ var _WebAnimationsPolyfillTools = {
   },
   disableCSSCache: function(){
     useCSSCache = false;
+  },
+  skipCallbackWhenSettingCurrentTime: function(){
+    skipCallbackWhenSettingCurrentTime = true;
+  },
+  doNotSkipCallbackWhenSettingCurrentTime: function(){
+    skipCallbackWhenSettingCurrentTime = false;
   },
   clearCSSCache: clearCSSCache
 };
