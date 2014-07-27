@@ -701,6 +701,7 @@ AnimationPlayer.prototype = {
   _deregisterFromTimeline: function() {
     PLAYERS.splice(PLAYERS.indexOf(this), 1);
     this._registeredOnTimeline = false;
+    compositor.clearInactiveTargets();
   }
 };
 
@@ -5092,6 +5093,17 @@ Compositor.prototype = {
     }
     for (var i = 0; i < this.targets.length; i++) {
       this.targets[i]._animProperties.applyAnimatedValues();
+    }
+  },
+  clearInactiveTargets: function() {
+    for (var i = this.targets.length; i--; ) {
+      var target = this.targets[i];
+      var activeAnimationsForTarget = target.getCurrentAnimations();
+      if (activeAnimationsForTarget.length === 0) {
+        // Cleanup this inactive target
+        delete target._animProperties;
+        this.targets.splice(i, 1);
+      }
     }
   }
 };
