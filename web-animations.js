@@ -5127,14 +5127,16 @@ var ensureTargetSVGInitialised = function(property, target) {
 };
 
 var ensureTargetCSSInitialised = function(target) {
+  target._returnAnimatedStyle = true;
   if (target.style._webAnimationsStyleInitialised) {
     return;
   }
+  var originalStyle = target.style;
   try {
-    var animatedStyle = new AnimatedCSSStyleDeclaration(target);
-    Object.defineProperty(target, 'style', configureDescriptor({
-      get: function() { return animatedStyle; }
-    }));
+     var animatedStyle = new AnimatedCSSStyleDeclaration(target);
+     Object.defineProperty(target, 'style', configureDescriptor({
+       get: function() { return target._returnAnimatedStyle ? animatedStyle : originalStyle; }
+     }));
   } catch (error) {
     patchInlineStyleForAnimation(target.style);
   }
