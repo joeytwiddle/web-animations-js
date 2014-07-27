@@ -449,7 +449,8 @@ AnimationPlayer.prototype = {
     try {
       this._currentTime = currentTime;
     } finally {
-      exitModifyCurrentAnimationState(repeatLastTick);
+      var callback = skipCallbackWhenSettingCurrentTime ? undefined : repeatLastTick;
+      exitModifyCurrentAnimationState(callback);
     }
   },
   get currentTime() {
@@ -4245,10 +4246,30 @@ var transformType = {
   interpolate: function(from, to, f) {
     var out = [];
     for (var i = 0; i < Math.min(from.length, to.length); i++) {
-      if (from[i].t !== to[i].t || isMatrix(from[i])) {
+      if (isMatrix(from[i]) && isMatrix(to[i])) {
+        if (!from.decompositions) {
+          from.decompositions = [];       // A sparse array of decomposed matrices
+          from.decompositionPairs = [];   // Corresponding to[i] partners
+        }
+        if (!to.decompositions) {
+          to.decompositions = [];
+          to.decompositionPairs = [];
+        }
+        if (from.decompositionPairs[i] !== to[i]) {
+          from.decompositionPairs[i] = to[i];
+          from.decompositions[i] = decomposeMatrix(convertToMatrix([from[i]]));
+        }
+        if (to.decompositionPairs[i] !== from[i]) {
+          to.decompositionPairs[i] = from[i];
+          to.decompositions[i] = decomposeMatrix(convertToMatrix([to[i]]));
+        }
+        out.push(interpolateDecomposedTransformsWithMatrices(
+            from.decompositions[i], to.decompositions[i], f));
+      } else if (from[i].t !== to[i].t) {
         break;
+      } else {
+        out.push(interpTransformValue(from[i], to[i], f));
       }
-      out.push(interpTransformValue(from[i], to[i], f));
     }
 
     if (i < Math.min(from.length, to.length) ||
@@ -5161,14 +5182,55 @@ var clearValue = function(target, property) {
   }
 };
 
+var cachedCSSProperties = {};
+
+var clearCSSCache = function(){
+  cachedCSSProperties = {};
+};
+
 var getValue = function(target, property) {
+  if (useCSSCache && target.id) {
+    if (cachedCSSProperties[target.id] && cachedCSSProperties[target.id][property] !== undefined) {
+      return cachedCSSProperties[target.id][property];
+    }
+  }
+
   ensureTargetInitialised(property, target);
   property = prefixProperty(property);
+  var value;
   if (propertyIsSVGAttrib(property, target)) {
-    return target.actuals[property];
+    value = target.actuals[property];
   } else {
-    return getComputedStyle(target)[property];
+    value = getComputedStyle(target)[property];
   }
+
+  if (useCSSCache && target.id) {
+    if (!cachedCSSProperties[target.id]) {
+      cachedCSSProperties[target.id] = {};
+    }
+    cachedCSSProperties[target.id][property] = value;
+  }
+
+  return value;
+};
+
+var useCSSCache = false;
+var skipCallbackWhenSettingCurrentTime = false;
+
+var _WebAnimationsPolyfillTools = {
+  enableCSSCache: function(){
+    useCSSCache = true;
+  },
+  disableCSSCache: function(){
+    useCSSCache = false;
+  },
+  skipCallbackWhenSettingCurrentTime: function(){
+    skipCallbackWhenSettingCurrentTime = true;
+  },
+  doNotSkipCallbackWhenSettingCurrentTime: function(){
+    skipCallbackWhenSettingCurrentTime = false;
+  },
+  clearCSSCache: clearCSSCache
 };
 
 var rafScheduled = false;
@@ -5448,5 +5510,13 @@ window._WebAnimationsTestingUtilities = {
   _prefixProperty: prefixProperty,
   _propertyIsSVGAttrib: propertyIsSVGAttrib
 };
+
+window._WebAnimationsPolyfillTools = _WebAnimationsPolyfillTools;
+
+defineDeprecatedProperty(window, 'Timeline', function() {
+  deprecated('Timeline', '2014-04-08',
+      'Please use AnimationTimeline instead.');
+  return AnimationTimeline;
+});
 
 })();
