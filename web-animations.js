@@ -38,13 +38,15 @@ function detectFeatures() {
       return property in el.style;
     })[0];
   }
+  // In Chrome 36 on Mac, if both 'transform' and '-webkit-transform' are set, the browser will use the value for '-webkit-transform'.
+  // Since the polyfill only sets one property during animation, we should make sure it sets '-webkit-transform', so I moved it to the top of the list.
   var transformProperty = detectProperty([
-    'transform',
     'webkitTransform',
+    'transform',
     'msTransform']);
   var perspectiveProperty = detectProperty([
-    'perspective',
     'webkitPerspective',
+    'perspective',
     'msPerspective']);
   return {
     calcFunction: calcFunction,
