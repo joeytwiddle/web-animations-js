@@ -4249,16 +4249,10 @@ var transformType = {
   interpolate: function(from, to, f) {
     var out = [];
     for (var i = 0; i < Math.min(from.length, to.length); i++) {
-      if (isMatrix(from[i]) && isMatrix(to[i])) {
-        var fromDecomposed = decomposeMatrix(convertToMatrix([from[i]]));
-        var toDecomposed = decomposeMatrix(convertToMatrix([to[i]]));
-        out.push(interpolateDecomposedTransformsWithMatrices(
-            fromDecomposed, toDecomposed, f));
-      } else if (from[i].t !== to[i].t) {
+      if (from[i].t !== to[i].t || isMatrix(from[i])) {
         break;
-      } else {
-        out.push(interpTransformValue(from[i], to[i], f));
       }
+      out.push(interpTransformValue(from[i], to[i], f));
     }
 
     if (i < Math.min(from.length, to.length) ||
